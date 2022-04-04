@@ -1,0 +1,26 @@
+version: '3.8'
+
+volumes:
+  dados:
+
+services:
+  db:
+    image: postgres:9.6
+    container_name: docker-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234567
+      POSTGRES_DB: email_sender
+    ports:
+      - "5438:5432"
+    volumes:
+      - dados:/var/lib/postgresql/data
+
+  frontend:
+    image: nginx:1.13
+    container_name: frontend
+    volumes:
+      - ./web:/usr/share/nginx/html/
+
+    ports:
+      - "80:80"
