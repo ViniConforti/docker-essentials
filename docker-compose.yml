@@ -16,6 +16,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234567
       POSTGRES_DB: email_sender
+      DB_HOST: db
+      REDIS_HOST: queue
     ports:
       - "5438:5432"
     volumes:
@@ -50,6 +52,9 @@ services:
     depends_on:
       - db
       - queue
+    environment:
+      POSTGRES_DB: email_sender
+      REDIS_HOST: queue
 
   queue:
     image: redis:3.2
@@ -58,13 +63,17 @@ services:
       - fila
 
   worker:
-    image: python:3.6
+    build: worker
     volumes:
       - ./worker:/worker
     working_dir: /worker
-    command: bash ./app.sh
+    command: worker.py
     networks:
       - fila
     depends_on:
       - queue
+    deploy:
+      replicas: 3
+    environment:
+      REDIS_HOST: queue
 
